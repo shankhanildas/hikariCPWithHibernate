@@ -10,18 +10,24 @@ import org.nil.entity.Name;
 
 public class HibernateMain {
 
-	private static final SessionFactory sessionFactory;
-
-	static {
+	private static SessionFactory sessionFactory;
+	
+	public static void initSessionFactory() {
 		try {
-			sessionFactory = new Configuration().configure().buildSessionFactory();
-			SessionFactoryImpl inst = (SessionFactoryImpl)sessionFactory;
-			
+			sessionFactory = new Configuration().configure().buildSessionFactory();		
 		} catch (Throwable th) {
 			System.err.println("sessionFactory initialization failed");
 			throw new ExceptionInInitializerError(th);
 		}
-
+	}
+	
+	public static void closeSessionFactory() {
+		try {
+			sessionFactory.close();	
+		} catch (Throwable th) {
+			System.err.println("sessionFactory closing failed");
+			throw new ExceptionInInitializerError(th);
+		}
 	}
 
 	public void addName(String name) {
@@ -70,28 +76,5 @@ public class HibernateMain {
 			System.out.println("Error occured:" + th.getCause());
 			sessionFactory.close();
 		}
-	}	
-
-	public void printNames(List<Name> names) {
-		if(names == null) {
-			return;
-		}
-		
-		for (Name name : names) {
-			System.out.println(name);
-		}
-	}
-
-	public static void main(String[] args) {
-		HibernateMain inst = new HibernateMain();
-		inst.addName("Shankhanil");
-		inst.addName("Soumya");
-		inst.addName("Saptaparna");
-
-		inst.printNames(inst.getAllNames());
-		
-		inst.deleteAllNames();
-
-		sessionFactory.close();
-	}
+	}		
 }
